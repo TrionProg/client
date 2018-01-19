@@ -25,11 +25,16 @@ pub mod resources;
 pub mod storage;
 pub mod render;
 
-use storage::{Storage};
+use storage::{Storage,Resource};
 
 fn main() {
     let (render_sender,render_receiver)=reactor::create_channel(types::ThreadSource::Process);
     Storage::initialize(render_sender);
+
+    let texture=resources::RgbaTexture::load("1.png").unwrap();
+    let id=texture.insert_to_storage().unwrap();
+
+    println!("{}",id);
     //println!("{}",get_storage().get_a());
     Storage::delete();
     println!("Hello, world!");

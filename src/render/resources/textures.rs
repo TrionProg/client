@@ -12,6 +12,9 @@ use gfx::texture::Size;
 use gfx::texture::Kind;
 use gfx::texture::AaMode;
 
+pub struct RgbaTexture {}
+
+/*
 pub trait Texture:Sized {
     type ST;
 
@@ -45,3 +48,4 @@ impl Texture for RgbaTexture {
         ok!(texture)
     }
 }
+*/

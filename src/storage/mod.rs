@@ -9,7 +9,4 @@ mod global;
 pub use self::global::get_storage;
 
 pub mod resource;
-pub use self::resource::{Resource,ResourceID,ResourcePool};
-
-pub mod commands;
-pub use self::commands::{StorageCommand,CreateResourceCommand,DeleteResourceCommand};
+pub use self::resource::{Resource,ResourceID,ResourceSlot,ResourcePool};
