@@ -7,6 +7,8 @@ use render;
 use image;
 use image::{GrayImage, GrayAlphaImage, RgbImage, RgbaImage};
 
+use file_systems::{FileSystem,ReadFile};
+
 use failure::Error;
 
 use storage::Resource;
@@ -21,7 +23,11 @@ pub struct RgbaTexture {
 }
 
 impl RgbaTexture {
-    pub fn load(file_name:&str) -> Result<Self,Error> {
+    pub fn load<FS:FileSystem>(fs:&mut FS, file_name:&str) -> Result<Self,Error> {
+        let mut file=fs.open_file(file_name)?;
+        let cursor=Cursor::new(file.read_to_end()?);
+
+        /*
         let mut file = match File::open(file_name) {
             Ok(file) => file,
             Err(err) => bail!(err)//bail!(err, file_name.to_string()),//TODO
@@ -33,6 +39,7 @@ impl RgbaTexture {
             Ok(_) => Cursor::new(buf),
             Err(err) => bail!(err)//return err!(err, file_name.to_string()),
         };
+        */
 
         let image_buffer = image::load(cursor, image::PNG).unwrap().to_rgba();
 

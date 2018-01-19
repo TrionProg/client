@@ -5,6 +5,8 @@ pub use std::time::Duration;
 
 pub use image::{GrayImage, GrayAlphaImage, RgbImage, RgbaImage};
 
+pub type BinaryData=Vec<u8>;
+
 #[derive(Debug,Copy,Clone,Eq,PartialEq)]
 pub enum ThreadSource{
     Supervisor=0,
