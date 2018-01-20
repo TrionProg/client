@@ -14,17 +14,17 @@ pub trait ReadFileSystem<'a>:FileSystem {
 
     //fn new(path:&str) -> Result<Self,Error>;
     //pub fn change_dir
-    fn open_file(&mut self, file_name:&str) -> Result<Self::RF,Error>;
+    fn open_file(&'a mut self, file_name:&str) -> Result<Self::RF,Error>;
     //fn write_file(&self, file_name:&str) -> Result<Self::WF,Error>;
 }
 
-pub trait WriteFileSystem:FileSystem {
-    type WF:WriteFile;
+pub trait WriteFileSystem<'a>:FileSystem {
+    type WF:WriteFile+'a;
 
 
     //fn new(path:&str) -> Result<Self,Error>;
     //pub fn change_dir
-    fn create_file(&mut self, file_name:&str) -> Result<Self::WF,Error>;
+    fn create_file(&'a mut self, file_name:&str) -> Result<Self::WF,Error>;
     //fn write_file(&self, file_name:&str) -> Result<Self::WF,Error>;
 }
 

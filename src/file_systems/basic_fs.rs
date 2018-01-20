@@ -55,7 +55,7 @@ impl FileSystem for BasicFS {
 impl<'a> ReadFileSystem<'a> for BasicFS {
     type RF=BasicFile;
 
-    fn open_file(&mut self, file_name:&str) -> Result<Self::RF,Error> {
+    fn open_file(&'a mut self, file_name:&str) -> Result<Self::RF,Error> {
         let path=format!("{}/{}", self.path, file_name);
         let file=match std::fs::File::open(path.as_str()) {
             Ok(file) => file,
@@ -66,10 +66,10 @@ impl<'a> ReadFileSystem<'a> for BasicFS {
     }
 }
 
-impl WriteFileSystem for BasicFS {
+impl<'a> WriteFileSystem<'a> for BasicFS {
     type WF=BasicFile;
 
-    fn create_file(&mut self, file_name:&str) -> Result<Self::WF,Error> {
+    fn create_file(&'a mut self, file_name:&str) -> Result<Self::WF,Error> {
         let path=format!("{}/{}", self.path, file_name);
         let file=match std::fs::File::create(path.as_str()) {
             Ok(file) => file,
@@ -79,6 +79,7 @@ impl WriteFileSystem for BasicFS {
         BasicFile::new(file,path)
     }
 }
+
 
 pub struct BasicFile {
     file:std::fs::File,

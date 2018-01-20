@@ -31,7 +31,7 @@ pub struct ReadZipArchive<'a, FS:ReadFileSystem<'a>> where FS::RF:Read + Seek{
 }
 
 impl<'a, FS:ReadFileSystem<'a>> ReadZipArchive<'a, FS> where FS::RF:Read + Seek{
-    pub fn open(file_system:&mut FS, file_name:&str) -> Result<Self,Error> {
+    pub fn open(file_system:&'a mut FS, file_name:&str) -> Result<Self,Error> {
         let file=file_system.open_file(file_name)?;
         let path=file.get_path().to_string();
 
@@ -56,10 +56,11 @@ impl<'a, FS:ReadFileSystem<'a>> FileSystem for ReadZipArchive<'a, FS> where FS::
     }
 }
 
-impl<'a,FS:ReadFileSystem<'a>> ReadFileSystem<'a> for ReadZipArchive<'a, FS> where FS::RF:Read + Seek{
-    type RF = ReadZipFile<'a>;
 
-    fn open_file(&mut self, file_name:&str) -> Result<Self::RF,Error> {
+impl<'a,'b, FS:ReadFileSystem<'a>> ReadFileSystem<'b> for ReadZipArchive<'a, FS> where FS::RF:Read + Seek{
+    type RF = ReadZipFile<'b>;
+
+    fn open_file(&'b mut self, file_name:&str) -> Result<Self::RF,Error> {
         let path=format!("{}/{}", self.path, file_name);
         let file=match self.archive.by_name(file_name) {
             Ok(file) => file,
@@ -69,6 +70,7 @@ impl<'a,FS:ReadFileSystem<'a>> ReadFileSystem<'a> for ReadZipArchive<'a, FS> whe
         ReadZipFile::new(file,path)
     }
 }
+
 
 pub struct ReadZipFile<'a>{
     file:zip::read::ZipFile<'a>,
