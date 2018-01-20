@@ -2,6 +2,9 @@
 use storage::{Resource,ResourceSlot};
 use resources::ResourceType;
 
+use super::storage::Storage as RenderStorage;
+use super::storage::Resource as RenderResource;
+
 use failure::Error;
 
 pub enum RenderCommand{
@@ -9,7 +12,7 @@ pub enum RenderCommand{
 }
 
 pub trait StorageCommandTrait {
-    fn process(self) -> Result<(),Error>;
+    fn process(self, storage:&mut RenderStorage) -> Result<(),Error>;
 }
 
 pub enum StorageCommand<R:Resource>{
@@ -18,13 +21,14 @@ pub enum StorageCommand<R:Resource>{
 }
 
 impl<R:Resource> StorageCommandTrait for StorageCommand<R>{
-    fn process(self) -> Result<(),Error> {
-        /*
+    fn process(self, storage:&mut RenderStorage) -> Result<(),Error> {
         match self {
-            StorageCommand::Insert(resource) => R::create(resource),
-            StorageCommand::Delete(slot) => R::delete(slot)
+            StorageCommand::Insert(resource) => {
+                let render_resource=R::RR::new(resource, storage)?;
+                render_resource.insert_to_storage(storage)?;
+            },
+            StorageCommand::Delete(slot) => R::RR::delete_from_storage(slot, storage)?
         }
-        */
 
         ok!()
     }

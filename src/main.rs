@@ -26,7 +26,7 @@ pub mod storage;
 pub mod render;
 
 use storage::{Storage,Resource};
-use file_systems::{FileSystem,BasicFS,ReadZipArchive};
+use file_systems::{FileSystem,BasicFS,ReadZipArchive,ReadFileSystem,ReadFile};
 
 fn main() {
     let (render_sender,render_receiver)=reactor::create_channel(types::ThreadSource::Process);
@@ -50,6 +50,9 @@ fn main() {
             let id5 = texture5.insert_to_storage().unwrap();
 
             println!("{}", id5);
+
+            let text=zip.open_file("fdfd.txt").unwrap().read_to_string().unwrap();
+            println!("{}", text);
         }
 
         let texture2 = resources::RgbaTexture::load(&mut fs, "1.png").unwrap();

@@ -9,12 +9,14 @@ use reactor::Mutex;
 
 use failure::Error;
 
+use render;
 use render::RenderSender;
 use render::{RenderCommand,StorageCommand};
 
+use resources::ResourceType;
+
 use super::StorageError;
 use super::{Storage,get_storage};
-use resources::ResourceType;
 
 
 pub type RefCounter=u32;
@@ -31,7 +33,7 @@ pub struct ResourceID<R:Resource> {
 }
 
 pub trait Resource:Sized + Send + 'static {
-    type RR;
+    type RR:render::storage::Resource<Self>;
 
     fn get_type() -> ResourceType;
     fn get_pool(storage:&Storage) -> &ResourcePool<Self>;
@@ -46,10 +48,6 @@ pub trait Resource:Sized + Send + 'static {
 
     fn insert_to_storage(self) -> Result<ResourceID<Self>,Error> {
         Self::get_pool(get_storage()).insert(self)
-    }
-
-    fn insert_to_render_storage(self) -> Result<(),Error> {
-        ok!()
     }
 }
 

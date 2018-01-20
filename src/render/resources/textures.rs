@@ -1,18 +1,35 @@
 use std;
-use gfx;
 use gfx_gl;
 
 //use types::*;
 
+use resources;
+
+use render::storage::Storage;
+use render::storage::{Resource,ResourcePool};
+
 use failure::Error;
 
+use gfx;
 use gfx::Factory;
 
 use gfx::texture::Size;
 use gfx::texture::Kind;
 use gfx::texture::AaMode;
 
-pub struct RgbaTexture {}
+pub struct RgbaTexture {
+    a:i32
+}
+
+impl Resource<resources::RgbaTexture> for RgbaTexture {
+    fn get_pool(storage:&mut Storage) -> &mut ResourcePool<resources::RgbaTexture,Self> {
+        &mut storage.rgba_textures
+    }
+
+    fn new(resource:resources::RgbaTexture, storage:&mut Storage) -> Result<Self,Error> {
+        ok!(RgbaTexture{a:4})
+    }
+}
 
 /*
 pub trait Texture:Sized {
