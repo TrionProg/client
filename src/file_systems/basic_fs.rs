@@ -7,7 +7,8 @@ use types::BinaryData;
 
 use failure::Error;
 
-use super::{FileSystem,ReadFile,WriteFile};
+use super::{FileSystem,ReadFileSystem,WriteFileSystem};
+use super::{File,ReadFile,WriteFile};
 
 #[derive(Debug, Fail)]
 pub enum BasicFSError {
@@ -33,11 +34,8 @@ pub struct BasicFS {
     path:String,
 }
 
-impl FileSystem for BasicFS {
-    type WF=BasicFile;
-    type RF=BasicFile;
-
-    fn new(path:&str) -> Result<Self,Error> {
+impl BasicFS {
+    pub fn new(path:&str) -> Result<Self,Error> {
         //TODO: check path
 
         let fs=BasicFS {
@@ -46,55 +44,68 @@ impl FileSystem for BasicFS {
 
         ok!(fs)
     }
+}
+
+impl FileSystem for BasicFS {
+    fn get_path(&self) -> &str {
+        self.path.as_str()
+    }
+}
+
+impl<'a> ReadFileSystem<'a> for BasicFS {
+    type RF=BasicFile;
 
     fn open_file(&mut self, file_name:&str) -> Result<Self::RF,Error> {
-        let file_name=format!("{}/{}", self.path, file_name);
-        let file=match std::fs::File::open(file_name.as_str()) {
+        let path=format!("{}/{}", self.path, file_name);
+        let file=match std::fs::File::open(path.as_str()) {
             Ok(file) => file,
-            Err(e) => bail!(BasicFSError::CanNotOpenFile(file_name,e))
+            Err(e) => bail!(BasicFSError::CanNotOpenFile(path,e))
         };
 
-        BasicFile::new(file,file_name)
+        BasicFile::new(file,path)
     }
+}
+
+impl WriteFileSystem for BasicFS {
+    type WF=BasicFile;
 
     fn create_file(&mut self, file_name:&str) -> Result<Self::WF,Error> {
-        let file_name=format!("{}/{}", self.path, file_name);
-        let file=match std::fs::File::create(file_name.as_str()) {
+        let path=format!("{}/{}", self.path, file_name);
+        let file=match std::fs::File::create(path.as_str()) {
             Ok(file) => file,
-            Err(e) => bail!(BasicFSError::CanNotCreateFile(file_name,e))
+            Err(e) => bail!(BasicFSError::CanNotCreateFile(path,e))
         };
 
-        BasicFile::new(file,file_name)
+        BasicFile::new(file,path)
     }
 }
 
 pub struct BasicFile {
     file:std::fs::File,
-    file_name:String,
+    path:String,
     len:u64,
-
 }
 
 impl BasicFile {
-    fn new(file:std::fs::File, file_name:String) -> Result<Self,Error>{
+    fn new(file:std::fs::File, path:String) -> Result<Self,Error>{
         let metadata=match file.metadata() {
             Ok(metadata) => metadata,
-            Err(e) => bail!(BasicFSError::NoMetadata(file_name,e))
+            Err(e) => bail!(BasicFSError::NoMetadata(path,e))
         };
 
         if !metadata.is_file() {
             if metadata.is_dir() {
-                bail!(BasicFSError::IsDirectory(file_name))
+                bail!(BasicFSError::IsDirectory(path))
             }
 
-            bail!(BasicFSError::IsNotFile(file_name))
+            bail!(BasicFSError::IsNotFile(path))
         }
 
         let len=metadata.len();
 
         let file=BasicFile{
             file,
-            file_name,
+            path,
             len
         };
 
@@ -115,14 +126,20 @@ impl Seek for BasicFile {
     fn seek(&mut self, pos: std::io::SeekFrom) -> IOResult<u64> { self.file.seek(pos) }
 }
 
+impl File for BasicFile {
+    fn get_path(&self) -> &str {
+        self.path.as_str()
+    }
+}
+
 impl ReadFile for BasicFile {
     fn read_to_end(&mut self) -> Result<BinaryData,Error> {
         let mut buf=Vec::with_capacity(self.len as usize);
 
-        let bytes_read=self.file.read_to_end(&mut buf).map_err(|e|BasicFSError::CanNotReadFile(self.file_name.clone(),e))?;
+        let bytes_read=self.file.read_to_end(&mut buf).map_err(|e|BasicFSError::CanNotReadFile(self.path.clone(),e))?;
 
         if bytes_read!=self.len as usize {
-            bail!(BasicFSError::NotAllBytesRead(self.file_name.clone()))
+            bail!(BasicFSError::NotAllBytesRead(self.path.clone()))
         }
 
         ok!(buf)
@@ -131,10 +148,10 @@ impl ReadFile for BasicFile {
     fn read_to_string(&mut self) -> Result<String,Error> {
         let mut buf=String::with_capacity(self.len as usize);
 
-        let bytes_read=self.file.read_to_string(&mut buf).map_err(|e|BasicFSError::CanNotReadFile(self.file_name.clone(),e))?;
+        let bytes_read=self.file.read_to_string(&mut buf).map_err(|e|BasicFSError::CanNotReadFile(self.path.clone(),e))?;
 
         if bytes_read!=self.len as usize {
-            bail!(BasicFSError::NotAllBytesRead(self.file_name.clone()))
+            bail!(BasicFSError::NotAllBytesRead(self.path.clone()))
         }
 
         ok!(buf)

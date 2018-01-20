@@ -26,18 +26,42 @@ pub mod storage;
 pub mod render;
 
 use storage::{Storage,Resource};
-use file_systems::{FileSystem,BasicFS};
+use file_systems::{FileSystem,BasicFS,ReadZipArchive};
 
 fn main() {
     let (render_sender,render_receiver)=reactor::create_channel(types::ThreadSource::Process);
     Storage::initialize(render_sender);
+    {
+        let mut fs = BasicFS::new(".").unwrap();
 
-    let mut fs=BasicFS::new(".").unwrap();
+        let texture = resources::RgbaTexture::load(&mut fs, "1.png").unwrap();
+        let id = texture.insert_to_storage().unwrap();
 
-    let texture=resources::RgbaTexture::load(&mut fs,"1.png").unwrap();
-    let id=texture.insert_to_storage().unwrap();
+        println!("{}", id);
 
-    println!("{}",id);
+        {
+            let mut zip = ReadZipArchive::open(&mut fs, "2.zip").unwrap();
+            let texture4 = resources::RgbaTexture::load(&mut zip, "1.png").unwrap();
+            let id4 = texture4.insert_to_storage().unwrap();
+
+            println!("{}", id4);
+
+            let texture5 = resources::RgbaTexture::load(&mut zip, "1.png").unwrap();
+            let id5 = texture5.insert_to_storage().unwrap();
+
+            println!("{}", id5);
+        }
+
+        let texture2 = resources::RgbaTexture::load(&mut fs, "1.png").unwrap();
+        let id2 = texture2.insert_to_storage().unwrap();
+
+        println!("{}", id2);
+
+        let texture3 = resources::RgbaTexture::load(&mut fs, "1.png").unwrap();
+        let id3 = texture3.insert_to_storage().unwrap();
+
+        println!("{}", id3);
+    }
     //println!("{}",get_storage().get_a());
     Storage::delete();
     println!("Hello, world!");
