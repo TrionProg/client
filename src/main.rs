@@ -24,18 +24,24 @@ pub mod resources;
 pub mod file_systems;
 pub mod storage;
 pub mod render;
+pub mod dictionary;
 
 use storage::{Storage,Resource};
+use dictionary::{Dictionary, get_dictionary};
 use file_systems::{FileSystem,BasicFS,ReadZipArchive,ReadFileSystem,ReadFile};
 
 fn main() {
     let (render_sender,render_receiver)=reactor::create_channel(types::ThreadSource::Process);
     Storage::initialize(render_sender);
+    Dictionary::initialize();
     {
         let mut fs = BasicFS::new(".").unwrap();
 
         let texture = resources::RgbaTexture::load(&mut fs, "1.png").unwrap();
         let id = texture.insert_to_storage().unwrap();
+
+        get_dictionary().rgba_textures.insert("1.txt".to_string(),id.clone()).unwrap();
+        get_dictionary().rgba_textures.delete("1.txt").unwrap();
 
         println!("{}", id);
 
@@ -51,7 +57,7 @@ fn main() {
 
             println!("{}", id5);
 
-            let text=zip.open_file("fdfd.txt").unwrap().read_to_string().unwrap();
+            let text=zip.open_file("fdf.txt").unwrap().read_to_string().unwrap();
             println!("{}", text);
         }
 
@@ -66,6 +72,7 @@ fn main() {
         println!("{}", id3);
     }
     //println!("{}",get_storage().get_a());
+    Dictionary::delete();
     Storage::delete();
     println!("Hello, world!");
 }
