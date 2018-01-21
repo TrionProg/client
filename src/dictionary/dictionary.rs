@@ -1,10 +1,10 @@
 
 use resources::*;
 
-use super::IDChapter;
+use super::Chapter;
 
 pub struct Dictionary {
-    pub rgba_textures:IDChapter<RgbaTexture>,
+    pub rgba_textures:Chapter<RgbaTextureID>,
 }
 
 impl Dictionary {
@@ -17,7 +17,7 @@ impl Dictionary {
 
     fn new() -> Self{
         Dictionary{
-            rgba_textures:IDChapter::new(),
+            rgba_textures:Chapter::new(),
         }
     }
 

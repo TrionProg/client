@@ -6,6 +6,7 @@ pub mod commands;
 pub use self::commands::{RenderCommand,StorageCommand};
 
 pub mod storage;
+pub use self::storage::Storage;
 
 use types::ThreadSource;
 use reactor;

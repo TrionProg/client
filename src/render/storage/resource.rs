@@ -10,6 +10,7 @@ use storage::ResourceSlot;
 use resources::ResourceType;
 
 use super::Storage;
+use super::StorageError;
 
 use failure::Error;
 
@@ -18,7 +19,7 @@ pub struct ResourcePool<R:storage::Resource, RR:Resource<R>> {
     _phantom_data:PhantomData<R>
 }
 
-pub trait Resource<R:storage::Resource>:Sized + Send + 'static {
+pub trait Resource<R:storage::Resource>:Sized + 'static {
     fn get_type() -> ResourceType {
         R::get_type()
     }
@@ -54,6 +55,16 @@ impl<R:storage::Resource, RR:Resource<R>> ResourcePool<R,RR> {
         self.pool.remove(slot);
 
         ok!()
+    }
+
+    pub fn get(&self, slot:ResourceSlot) -> Result<&RR,Error> {
+        match self.pool.get(slot) {
+            Some(resource) => ok!(resource),
+            None => {
+                let resource_id=format!("{:?} {}", RR::get_type(), slot);
+                bail!(StorageError::NoResource(resource_id))
+            }
+        }
     }
 
     //TODO get

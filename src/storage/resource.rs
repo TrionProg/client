@@ -127,7 +127,20 @@ impl<R:Resource> ResourceID<R> {
     pub fn get_ref_count(&self) -> RefCounter {
         R::get_pool(get_storage()).get_ref_count(self).unwrap()
     }
+
+    pub fn index(&mut self, storage:&mut render::Storage) -> Result<(),Error> {
+        use render::storage::resource::Resource;
+
+        if self.resource == 0 as *const R::RR {
+            let res=R::RR::get_pool(storage).get(self.slot)?;
+            self.resource=res as *const R::RR;
+        }
+
+        ok!()
+    }
 }
+
+unsafe impl<R:Resource> Send for ResourceID<R> {}
 
 impl<R:Resource> std::fmt::Display for ResourceID<R> {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {

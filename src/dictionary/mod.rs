@@ -6,7 +6,7 @@ pub mod dictionary;
 pub use self::dictionary::Dictionary;
 
 pub mod chapter;
-pub use self::chapter::IDChapter;
+pub use self::chapter::Chapter;
 
 mod global;
 pub use self::global::get_dictionary;

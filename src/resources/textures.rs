@@ -11,10 +11,8 @@ use file_systems::{ReadFileSystem,ReadFile};
 
 use failure::Error;
 
-use storage::Resource;
-use storage::ResourceID;
+use storage::{Resource,ResourceID,ResourcePool};
 use storage::Storage;
-use storage::ResourcePool;
 
 use super::ResourceType;
 
