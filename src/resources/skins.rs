@@ -1,8 +1,9 @@
 
+
 use super::lods::*;
 
 /*
-pub struct ObjectBody {
+pub struct ObjectSkin {
     pub lods:Vec<(f32,ObjectLodID)>
 }
 */

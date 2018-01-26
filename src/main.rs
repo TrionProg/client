@@ -23,8 +23,13 @@ pub mod location;
 pub mod resources;
 pub mod file_systems;
 pub mod storage;
-pub mod render;
 pub mod dictionary;
+pub mod universe;
+
+pub mod render;
+pub mod supervisor;
+pub mod process;
+pub mod controller;
 
 use storage::{Storage,Resource};
 use dictionary::{Dictionary, get_dictionary};

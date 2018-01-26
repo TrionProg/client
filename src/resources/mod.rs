@@ -11,8 +11,8 @@ pub use self::meshes::*;
 pub mod lods;
 pub use self::lods::*;
 
-pub mod bodies;
-pub use self::bodies::*;
+pub mod skins;
+pub use self::skins::*;
 
 pub mod models;
 pub use self::models::*;

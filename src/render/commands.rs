@@ -2,40 +2,39 @@
 use storage::{Resource,ResourceSlot};
 use resources::ResourceType;
 
-use super::storage::Storage as RenderStorage;
-use super::storage::Resource as RenderResource;
-
 use failure::Error;
 
-pub enum RenderCommand{
+use types::*;
+
+use supervisor::SupervisorSender;
+use controller::ControllerSender;
+use process::ProcessSender;
+
+use::Camera;
+
+use super::storage::{ObjectMesh,TerrainMesh, TraceMesh};
+use super::pipelines::{ObjectVertex, TraceVertex};
+use super::Trace;
+use super::storage::Storage as RenderStorage;
+use super::storage::Resource as RenderResource;
+use super::storage::StorageCommandTrait;
+
+pub enum RenderCommand {
+    ThreadCrash(ThreadSource),
+
+    SupervisorSender(SupervisorSender),
+    ControllerSender(ControllerSender),
+    ProcessSender(ProcessSender),
+    //Camera(Camera),
+
+    SupervisorReady,
+    SupervisorFinished,
+
+    Tick,
+    Shutdown,
+
+    ResizeWindow(u32,u32),
+
     StorageCommand(Box<StorageCommandTrait + Send>),
-}
-
-pub trait StorageCommandTrait {
-    fn process(self, storage:&mut RenderStorage) -> Result<(),Error>;
-}
-
-pub enum StorageCommand<R:Resource>{
-    Insert(R),
-    Delete(ResourceSlot),
-}
-
-impl<R:Resource> StorageCommandTrait for StorageCommand<R>{
-    fn process(self, storage:&mut RenderStorage) -> Result<(),Error> {
-        match self {
-            StorageCommand::Insert(resource) => {
-                let render_resource=R::RR::new(resource, storage)?;
-                render_resource.insert_to_storage(storage)?;
-            },
-            StorageCommand::Delete(slot) => R::RR::delete_from_storage(slot, storage)?
-        }
-
-        ok!()
-    }
-}
-
-impl<R:Resource> Into<RenderCommand> for StorageCommand<R>{
-    fn into(self) -> RenderCommand {
-        RenderCommand::StorageCommand(Box::new(self))
-    }
+    SetSlot(SetSlot),
 }
