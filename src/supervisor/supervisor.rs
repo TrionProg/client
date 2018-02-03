@@ -1,12 +1,11 @@
 use std;
-use nes::{ErrorInfo,ErrorInfoTrait};
+
 use reactor;
 
 use types::*;
 
 use std::thread;
 use std::thread::JoinHandle;
-
 
 use render;
 use render::Render;

@@ -1,10 +1,9 @@
 use std;
-use glutin;
-use nes::{ErrorInfo,ErrorInfoTrait};
 use reactor;
 
 use types::*;
 
+use glutin;
 use glutin::EventsLoop;
 use glutin::WindowEvent;
 use glutin::ElementState;
@@ -25,6 +24,8 @@ use process;
 use process::ProcessSender;
 use process::ProcessCommand;
 
+use failure::Error;
+
 use ::Camera;
 
 use super::Error;
@@ -42,9 +43,7 @@ pub struct Controller {
     process_sender:ProcessSender,
 
     events_loop:EventsLoop,
-    gui:GUI,
-    camera:Camera,
-    cursor:Cursor
+    gui:GUI
 }
 
 impl Controller{
@@ -55,12 +54,6 @@ impl Controller{
             let (mut supervisor_sender, mut render_sender, mut process_sender) = Self::get_senders(&mut controller_receiver).unwrap();
 
             println!("C1");
-
-            let camera=Camera::new(1024, 768);
-
-            send![
-                render_sender, RenderCommand::Camera(camera.clone())
-            ].unwrap();
 
             let events_loop=wait![controller_receiver,
                 ControllerCommand::EventsLoop(events_loop) => events_loop
@@ -73,8 +66,7 @@ impl Controller{
                 supervisor_sender.clone(),
                 render_sender.clone(),
                 process_sender.clone(),
-                events_loop,
-                camera
+                events_loop
             ) {
                 Ok(controller) => controller,
                 Err(error) => {
@@ -153,11 +145,8 @@ impl Controller{
         supervisor_sender:SupervisorSender,
         render_sender:RenderSender,
         process_sender:ProcessSender,
-        events_loop:EventsLoop,
-        camera:Camera,
+        events_loop:EventsLoop
     ) -> Result<Self,Error> {
-        let cursor=Cursor::new(render_sender.clone(),process_sender.clone());
-
         let controller=Controller {
             controller_receiver,
             supervisor_sender,
@@ -166,8 +155,6 @@ impl Controller{
 
             events_loop,
             gui:GUI::new(),
-            camera,
-            cursor
         };
 
         ok!(controller)
@@ -266,20 +253,6 @@ impl Controller{
                 }
             }
         });
-
-        ok!()
-    }
-
-    fn handle_cursor(&mut self) -> Result<(),Error> {
-        let mut moved = false;
-        moved |= self.cursor.move_left(self.gui.input.key(VirtualKeyCode::Left));
-        moved |= self.cursor.move_right(self.gui.input.key(VirtualKeyCode::Right));
-        moved |= self.cursor.move_back(self.gui.input.key(VirtualKeyCode::Up));
-        moved |= self.cursor.move_front(self.gui.input.key(VirtualKeyCode::Down));
-
-        if moved {
-            try_send!(self.render_sender, RenderCommand::MoveCursor(self.cursor.x,self.cursor.z));
-        }
 
         ok!()
     }

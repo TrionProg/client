@@ -210,7 +210,7 @@ impl Process{
 
         ok!()
     }
-
+    /*
     fn load_resources(&mut self) -> Result<(),Error>{
         use storage::{TextureStorage, MeshStorage, LodStorage};
         use storage::RgbaTexture;
@@ -642,6 +642,7 @@ impl Process{
 
         ok!()
     }
+    */
 /*
     fn add_trace(&mut self, a:(u32,u32), b:(u32,u32)) -> Result<TraceID,Error> {
         use std::f32::consts::PI;
